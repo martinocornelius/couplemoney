@@ -14,13 +14,14 @@ Couple Money Tracker (working name) is a shared money log for couples and their 
 
 ## MVP scope
 
-The first version does five things and nothing else, in the phone or laptop browser.
+The first version does six things and nothing else, in the phone or laptop browser.
 
 1. **Create or join a home, no passwords:** one person creates a home and shares an invite link or the 12-character home code. Anyone who opens the link or enters the code types their name and is in. Each browser remembers its home, so there is nothing to log into next time. Every member can log income and expenses.
 2. **Pockets:** the places your money sits, such as a bank account, cash or an e-wallet. A bank account pocket requires a bank name and account number (rekening); other types never ask for one. Each pocket shows its current balance.
 3. **Add a transaction fast:** income or expense, amount, pocket, category, optional note, date (defaults to now).
 4. **Shared live feed:** every member's transactions in one list, each labeled with who logged it, plus today's and this month's income, expense and balance. New entries appear on every open phone within about 5 seconds, without refreshing.
 5. **Payables and receivables:** record money the family owes (payable, hutang) and money owed to the family (receivable, piutang) with the counterparty, amount and expected payment date. Overdue and due-soon items stand out. Marking one paid records the matching transaction in a pocket.
+6. **Monthly budgets per category:** any member can set a monthly spending limit for an expense category, such as Food and drinks Rp 3.000.000. A budget is optional and repeats every month. Home shows how much of each budget this month's expenses have used: amber from 80%, red when over.
 
 **Later list** (not in the MVP):
 
@@ -29,7 +30,6 @@ The first version does five things and nothing else, in the phone or laptop brow
 - Transfers between pockets (e.g. ATM withdrawal from a bank pocket to cash)
 - Partial payments on payables and receivables
 - Reminders before an expected payment date
-- Monthly budgets per category
 - Push notifications when a member logs something
 - Charts and monthly reports
 - Recurring transactions (rent, subscriptions)
@@ -48,13 +48,13 @@ The MVP has nine screens, all designed phone-first (375 px wide). A bottom tab b
 | --- | -------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
 | 1   | Welcome                          | Shown when this browser hasn't joined a home yet                                                                                                                                                            | Create a new home (home name + your name) or enter a home code                                                              |
 | 2   | Join (from an invite link)       | The home's name and its existing members                                                                                                                                                                    | Pick your name if you joined before on another device, or type a new name; tap Join                                         |
-| 3   | Home (shared feed)               | This month's income, expense and balance; total across all pockets; payables and receivables due in the next 7 days; transaction list with amount, pocket, category, note, who logged it and time           | Switch between Today and This month; filter by pocket; tap + to add; tap your own entry to edit                             |
+| 3   | Home (shared feed)               | This month's income, expense and balance; total across all pockets; payables and receivables due in the next 7 days; this month's budgets (spent vs. limit per category); transaction list with amount, pocket, category, note, who logged it and time           | Switch between Today and This month; filter by pocket; tap + to add; tap your own entry to edit                             |
 | 4   | Add / edit transaction           | Expense or Income toggle (Expense by default), large amount field, pocket picker (remembers your last pocket), category grid, note, date and time                                                           | Save; edit or delete your own entries only                                                                                  |
 | 5   | Pockets                          | Every pocket with its type and current balance; bank pockets also show the bank name and a masked account number (•••• 1234)                                                                                | Add a pocket; open one to see its transactions; reveal or copy an account number                                            |
 | 6   | Add / edit pocket                | Name, type (Bank account, Cash, E-wallet, Other), opening balance; bank name and account number fields appear only when the type is Bank account                                                            | Save; archive a pocket you no longer use                                                                                    |
 | 7   | Payables & receivables           | Two tabs: Payables (the family owes) and Receivables (owed to the family); each item's counterparty, amount and expected payment date; overdue items in red, due within 7 days in amber; open total per tab | Add an item; mark one as paid; switch between Open and Paid                                                                 |
 | 8   | Add / edit payable or receivable | Payable or Receivable toggle, counterparty, amount, expected payment date, note                                                                                                                             | Save; when marking paid, pick a pocket and date, and the matching transaction is recorded                                   |
-| 9   | Home settings                    | Home name, members, home code and invite link                                                                                                                                                               | Copy or share the invite link (WhatsApp-friendly text); reset the home code; remove a member; leave the home on this device |
+| 9   | Home settings                    | Home name, members, home code, invite link and monthly budget per expense category                                                                                                                                                               | Copy or share the invite link (WhatsApp-friendly text); reset the home code; remove a member; set, change or clear a category's monthly budget; leave the home on this device |
 
 **Default categories** (fixed list in the MVP):
 
@@ -71,7 +71,7 @@ You create the home and share the invite link (or read out the home code). Your 
 
 ## Data model
 
-Six tables in one Cloudflare D1 database hold everything: homes, members, the devices each member uses, pockets, transactions, and payables and receivables. Every record belongs to one home. Ids are random text, money is whole rupiah stored as integers, and dates are text in ISO format (2026-10-16T09:30). A pocket's balance is calculated (opening balance + income − expenses in that pocket), never stored.
+Seven tables in one Cloudflare D1 database hold everything: homes, members, the devices each member uses, pockets, transactions, payables and receivables, and budgets. Every record belongs to one home. Ids are random text, money is whole rupiah stored as integers, and dates are text in ISO format (2026-10-16T09:30). A pocket's balance is calculated (opening balance + income − expenses in that pocket), never stored.
 
 **homes** — one row per home
 
@@ -153,6 +153,19 @@ The database itself checks the bank rule: a bank pocket without a bank name or a
 
 Marking an item paid creates one transaction in the chosen pocket: a payable becomes an expense in the "Debt payment" category, and a receivable becomes income in "Debt received".
 
+**budgets** — monthly spending limit per expense category
+
+| Field                  | Type    | Notes                                                                      |
+| ---------------------- | ------- | -------------------------------------------------------------------------- |
+| id                     | text    | Random id                                                                  |
+| home_id                | text    | Points to homes                                                            |
+| category               | text    | One of the default expense categories; one budget per category per home    |
+| monthly_limit          | integer | Whole rupiah, always positive; the same limit applies every month          |
+| created_by             | text    | The member who set it                                                      |
+| created_at, updated_at | text    | Set automatically                                                          |
+
+A category's spending this month is the sum of that home's expenses in the category from the 1st of the month. Clearing a budget deletes its row; transactions are never changed.
+
 ## Security rules
 
 With no passwords, two secrets protect a home: the home code decides who may join, and a device token proves a browser already joined. The Cloudflare Worker checks them on every request; the app's screens are never trusted to hide data.
@@ -164,6 +177,7 @@ With no passwords, two secrets protect a home: the home code decides who may joi
 | Add pockets, transactions, payables and receivables | Any member, only inside their own home                                    |
 | Edit or delete a transaction                        | Only the member who logged it                                             |
 | Edit pockets, payables and receivables              | Any member of the home                                                    |
+| Set, change or clear budgets                        | Any member of the home                                                    |
 | Reset the home code                                 | Any member; old links and codes stop working, joined devices keep working |
 | Remove a member                                     | Any member; that member's devices lose access immediately                 |
 
@@ -216,6 +230,7 @@ The MVP is finished when every box below is ticked on two real phones.
 - ☐ I can add a payable and a receivable with an expected payment date
 - ☐ Overdue items show in red, items due within 7 days show in amber, and Home lists what's due in the next 7 days
 - ☐ Marking an item paid records the matching expense or income in the chosen pocket
+- ☐ I can set a monthly budget for a category, and Home shows spent vs. limit, amber from 80% and red when over
 - ☐ After resetting the home code, the old invite link fails but joined phones keep working
 - ☐ A removed member's phone loses access immediately
 - ☐ A second home made in another browser sees none of our data
@@ -223,7 +238,7 @@ The MVP is finished when every box below is ticked on two real phones.
 
 ## Build plan
 
-You build the app in 8 milestones, entirely in your browser. Every milestone follows the same cycle:
+You build the app in 9 milestones, entirely in your browser. Every milestone follows the same cycle:
 
 1. Start a new session at claude.ai/code on couple-money and paste the milestone's prompt.
 2. When Claude finishes, create a pull request from the session.
@@ -264,14 +279,14 @@ Check it works: follow Claude's Cloudflare steps, then merge the pull request. O
 ### Milestone 2: Database
 
 Set up the Cloudflare D1 database from SPEC.md. Write a schema.sql that  
-creates the six tables in the Data model section, with the bank pocket  
+creates the seven tables in the Data model section, with the bank pocket  
 rule as a CHECK constraint and the indexes the queries will need. Add a  
 D1 binding named DB to the Worker config; I will give you the database  
 ID. Make /api/health also confirm the database answers. Tell me exactly  
 how to create the database in the Cloudflare dashboard, where to copy  
 its ID, and how to run schema.sql in the D1 Console.
 
-Check it works: in the dashboard's D1 Console, the six tables are listed. After merging, /api/health reports that the database is connected.
+Check it works: in the dashboard's D1 Console, the seven tables are listed. After merging, /api/health reports that the database is connected.
 
 ### Milestone 3: Create and join a home
 
@@ -342,7 +357,18 @@ lists items due in the next 7 days.
 
 Check it works: add a payable due yesterday (red) and a receivable due in 3 days (amber). Mark the payable paid from a bank pocket; a matching expense appears in the feed and that pocket's balance drops by the same amount.
 
-### Milestone 8: Polish and home-screen shortcut
+### Milestone 8: Monthly budgets
+
+Build monthly budgets per category from SPEC.md. In Home settings, list  
+the expense categories, each with an optional monthly budget in Rupiah  
+that any member can set, change or clear. On Home, add a Budgets card  
+for this month: for each category with a budget, show spent vs. limit  
+with a progress bar, amber from 80% and red when over. Spending counts  
+this month's expenses in that category, from the 1st of the month.
+
+Check it works: set a Food and drinks budget of Rp 100.000, add a Rp 85.000 food expense (the bar turns amber), then another Rp 20.000 (red, over budget). Your partner sees the same budget.
+
+### Milestone 9: Polish and home-screen shortcut
 
 Make the app a PWA so it can be added to the phone home screen, with an  
 app name, an icon, a theme color and full-screen display. Check every  
