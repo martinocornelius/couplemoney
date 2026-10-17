@@ -69,7 +69,7 @@ The MVP has fifteen screens, all designed phone-first (375 px wide). A bottom ta
 | 1   | Landing                          | What the app does in one line ("Track money together. Save for your dreams."); shown when this browser isn't logged in | Sign up; log in |
 | 2   | Sign up                          | Username, passcode and repeat passcode; a tip not to reuse your bank PIN | Create the account; switch to Log in |
 | 3   | Log in                           | Username and passcode; "Forgot your passcode? Ask the app admin to reset it." | Log in; after an admin reset, choose a new passcode |
-| 4   | Create or join a home            | Shown after logging in when your account isn't in a home | Create a home (home name) or enter a home code |
+| 4   | Create or join a home            | Shown after logging in when your account isn't in a home; your username | Create a home (home name) or enter a home code; change your passcode; log out; open Admin (admin only) |
 | 5   | Join a home                      | The home's name and its members (opened from an invite link, or after entering a home code) | Tap Join; if you aren't logged in yet, sign up or log in first and come back here |
 | 6   | Home (shared feed)               | Net worth; this month's income, expense and balance; "Our dreams" (each goal's progress); payables and receivables due in the next 7 days; this month's budgets (spent vs. limit per category); transaction list with amount, pocket, category, note, who logged it and time, transfers shown as "BCA → Cash", recurring entries marked with a repeat icon | Switch between Today and This month; filter by pocket; tap + to add; tap your own entry to edit; open the monthly summary |
 | 7   | Add / edit transaction           | Expense, Income or Transfer toggle (Expense by default), large amount field, pocket picker (remembers your last pocket; From and To for a transfer), category grid (not for transfers), note, date and time, "Repeat every month" switch with the day of the month | Save; edit or delete your own entries only |
@@ -80,7 +80,7 @@ The MVP has fifteen screens, all designed phone-first (375 px wide). A bottom ta
 | 12  | Home settings                    | Home name, members, home code, invite link and monthly budget per expense category; your username; links to Recurring entries and, for the admin only, Admin | Copy or share the invite link (WhatsApp-friendly text); reset the home code; remove a member; set, change or clear a category's monthly budget; change your passcode; log out; leave the home |
 | 13  | Recurring entries                | Every monthly rule: type, amount, pocket (or From → To), category, day of the month, next date and who set it up | Add; edit; pause or resume; delete (entries already recorded stay) |
 | 14  | Monthly summary                  | One month's income, expense and savings (income − expense, and as % of income); income by category; spending by category as a bar chart, largest first; change vs. the month before; budget results; unrecorded money (that month's balance adjustments); up to four insights | Pick the month (previous / next); tap a category to see its transactions; open it from a "See monthly summary" link on Home |
-| 15  | Admin (app admin only)           | Find an account by username: when it was made and whether it is locked; never a passcode, and never any home's money | Reset the passcode: shows a one-time passcode once, valid for 24 hours |
+| 15  | Admin (app admin only)           | Opened from Home settings or Create or join a home. Find an account by username: when it was made and whether it is locked; never a passcode, and never any home's money | Reset the passcode: shows a one-time passcode once, valid for 24 hours |
 
 **Default categories** (fixed list in the MVP; transfers and balance adjustments have no category):
 
@@ -409,11 +409,14 @@ account) using Web Crypto; never store, log or return a passcode.
 Logging in sets an HttpOnly, Secure, SameSite=Lax session cookie with a  
 random token; store only its SHA-256 hash. Lock a username for 15  
 minutes after 5 wrong passcodes. Every /api route except sign up, log  
-in and health must require a valid session. Add Change passcode and  
-Log out to Home settings, and build the Admin screen for accounts with  
-is_admin = 1: find an account and reset its passcode to a one-time  
-passcode valid for 24 hours, after which they must choose a new one.  
-Tell me exactly how to make my account the admin in the D1 Console.
+in and health must require a valid session. After logging in, an  
+account that isn't in a home lands on the Create or join a home screen  
+(its create and join buttons come in Milestone 4); put Change passcode,  
+Log out and, for the admin only, an Admin link there. Build the Admin  
+screen for accounts with is_admin = 1: find an account and reset its  
+passcode to a one-time passcode valid for 24 hours, after which they  
+must choose a new one. Tell me exactly how to make my account the  
+admin in the D1 Console.
 
 Check it works: on the preview link, sign up in a normal window, log out and log back in. Make your account admin as Claude explains. In an incognito window, sign up a second test account, log out, then type a wrong passcode 5 times: it's locked. Reset it from Admin in the normal window, log in to the second account with the one-time passcode and choose a new one; the old passcode no longer works. No screen ever shows a passcode.
 
@@ -427,7 +430,8 @@ isn't logged in, send them to sign up or log in first and bring them
 back. An account is an active member of at most one home. Every query  
 must stay inside the caller's home. Home settings shows the home code,  
 the invite link with Copy and Share buttons (WhatsApp-friendly text),  
-the members, Reset home code, Remove member and Leave home.
+the members, Reset home code, Remove member and Leave home, plus the  
+same Change passcode, Log out and Admin links as Create or join a home.
 
 Check it works: on the preview link, create a test home in a normal browser window. In an incognito window, open the invite link, sign up as a second test account and join: both usernames appear in Home settings. Reset the code: the old link fails, and both windows keep working.
 
@@ -509,7 +513,8 @@ when it has a date, how much to save per month, exactly as the Savings
 goal maths in SPEC.md says, in a separate function with tests. Add  
 Adjust balance to each pocket: I type the real balance from my bank  
 app, and the app records an adjustment for the difference, which  
-changes the balance but never counts as income or expense.
+changes the balance but never counts as income or expense. Show  
+adjustments in the transaction list as "Balance adjusted".
 
 Check it works: make a pocket "Bali trip" with a goal of Rp 20.000.000 and a target date next year, then transfer Rp 9.000.000 into it. It shows 45%, and the monthly amount equals Rp 11.000.000 ÷ the months left (counting this month and the target month), rounded up to the next Rp 1.000. Adjust another pocket's balance down by Rp 50.000: it matches what you typed, and this month's expense total doesn't change.
 
@@ -526,7 +531,7 @@ is today records today's entry at once. Mark recorded entries with a
 repeat icon. Pause a rule when its member leaves or is removed, or when  
 one of its pockets is archived.
 
-Check it works: add a recurring expense with today's day of the month: it's recorded at once, with the repeat icon. Add another with tomorrow's day, and check the next morning that it was recorded by itself.
+Check it works: on the preview link, add a recurring expense with today's day of the month: it's recorded at once, with the repeat icon. Scheduled jobs only run on the live app, so after merging, add one on the live app with tomorrow's day and check the next morning that it was recorded by itself.
 
 ### Milestone 12: Monthly summary and insights
 

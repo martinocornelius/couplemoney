@@ -6,6 +6,10 @@
   "name": "couple-money",
   "main": "worker/index.ts",
   "compatibility_date": "2026-10-01",
+  // Live address: couple-money.<your-subdomain>.workers.dev
+  "workers_dev": true,
+  // Each pull request gets its own preview link.
+  "preview_urls": true,
   "assets": {
     // Any page address that is not a file (like /pockets) gets index.html,
     // so the React app can show the right screen.

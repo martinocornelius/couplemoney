@@ -2,6 +2,8 @@
 
 A shared money log for couples and their families. See [SPEC.md](SPEC.md) for what the app does and the build plan.
 
+**Building it?** Follow [BUILD-GUIDE.md](BUILD-GUIDE.md), step by step until the app is live.
+
 ## How it is built
 
 - **App:** React + Vite + TypeScript + Tailwind CSS, in `src/`. Each screen from SPEC.md is a file in `src/screens/`.
