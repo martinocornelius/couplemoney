@@ -9,6 +9,7 @@ import PocketFormScreen from "./screens/PocketFormScreen.tsx";
 import DebtsScreen from "./screens/DebtsScreen.tsx";
 import DebtFormScreen from "./screens/DebtFormScreen.tsx";
 import SettingsScreen from "./screens/SettingsScreen.tsx";
+import SummaryScreen from "./screens/SummaryScreen.tsx";
 import NotFoundScreen from "./screens/NotFoundScreen.tsx";
 
 export default function App() {
@@ -18,7 +19,7 @@ export default function App() {
       <Route path="/welcome" element={<WelcomeScreen />} />
       <Route path="/join/:code" element={<JoinScreen />} />
 
-      {/* Screens 3-9: inside a home, with the bottom tab bar */}
+      {/* Screens 3-10: inside a home, with the bottom tab bar */}
       <Route element={<AppLayout />}>
         <Route index element={<HomeScreen />} />
         <Route path="transactions/new" element={<TransactionFormScreen />} />
@@ -30,6 +31,7 @@ export default function App() {
         <Route path="debts/new" element={<DebtFormScreen />} />
         <Route path="debts/:id/edit" element={<DebtFormScreen />} />
         <Route path="settings" element={<SettingsScreen />} />
+        <Route path="summary" element={<SummaryScreen />} />
         <Route path="*" element={<NotFoundScreen />} />
       </Route>
     </Routes>

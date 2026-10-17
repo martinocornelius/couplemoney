@@ -1,5 +1,5 @@
 import BudgetBar from "../components/BudgetBar.tsx";
-import Screen from "../components/Screen.tsx";
+import Screen, { SecondaryLink } from "../components/Screen.tsx";
 import { formatRupiah } from "../lib/rupiah.ts";
 
 const sampleTotals = [
@@ -35,6 +35,7 @@ export default function HomeScreen() {
           <BudgetBar key={b.category} {...b} />
         ))}
       </section>
+      <SecondaryLink to="/summary">See monthly summary</SecondaryLink>
       <p className="text-xs text-slate-400">Sample numbers only.</p>
     </Screen>
   );

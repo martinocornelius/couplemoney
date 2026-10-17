@@ -14,7 +14,7 @@ Couple Money Tracker (working name) is a shared money log for couples and their 
 
 ## MVP scope
 
-The first version does six things and nothing else, in the phone or laptop browser.
+The first version does seven things and nothing else, in the phone or laptop browser.
 
 1. **Create or join a home, no passwords:** one person creates a home and shares an invite link or the 12-character home code. Anyone who opens the link or enters the code types their name and is in. Each browser remembers its home, so there is nothing to log into next time. Every member can log income and expenses.
 2. **Pockets:** the places your money sits, such as a bank account, cash or an e-wallet. A bank account pocket requires a bank name and account number (rekening); other types never ask for one. Each pocket shows its current balance.
@@ -22,6 +22,7 @@ The first version does six things and nothing else, in the phone or laptop brows
 4. **Shared live feed:** every member's transactions in one list, each labeled with who logged it, plus today's and this month's income, expense and balance. New entries appear on every open phone within about 5 seconds, without refreshing.
 5. **Payables and receivables:** record money the family owes (payable, hutang) and money owed to the family (receivable, piutang) with the counterparty, amount and expected payment date. Overdue and due-soon items stand out. Marking one paid records the matching transaction in a pocket.
 6. **Monthly budgets per category:** any member can set a monthly spending limit for an expense category, such as Food and drinks Rp 3.000.000. A budget is optional and repeats every month. Home shows how much of each budget this month's expenses have used: amber from 80%, red when over.
+7. **Monthly summary and insights:** pick a month to see its income, expense and savings, spending by category as a bar chart, a comparison with the month before, and up to four plain-language insights such as "Food and drinks: 18% more than last month". The app works the insights out with fixed rules (see Monthly insights below); no AI or outside service is involved.
 
 **Later list** (not in the MVP):
 
@@ -31,7 +32,7 @@ The first version does six things and nothing else, in the phone or laptop brows
 - Partial payments on payables and receivables
 - Reminders before an expected payment date
 - Push notifications when a member logs something
-- Charts and monthly reports
+- Charts and reports beyond the monthly summary (e.g. yearly trends)
 - Recurring transactions (rent, subscriptions)
 - Receipt photos
 - Export to Excel or CSV
@@ -42,7 +43,7 @@ The first version does six things and nothing else, in the phone or laptop brows
 
 ## Screens
 
-The MVP has nine screens, all designed phone-first (375 px wide). A bottom tab bar links Home, Pockets, Payables & receivables and Settings, with a + button for new entries.
+The MVP has ten screens, all designed phone-first (375 px wide). A bottom tab bar links Home, Pockets, Payables & receivables and Settings, with a + button for new entries.
 
 | #   | Screen                           | What it shows                                                                                                                                                                                               | What you can do                                                                                                             |
 | --- | -------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
@@ -55,11 +56,23 @@ The MVP has nine screens, all designed phone-first (375 px wide). A bottom tab b
 | 7   | Payables & receivables           | Two tabs: Payables (the family owes) and Receivables (owed to the family); each item's counterparty, amount and expected payment date; overdue items in red, due within 7 days in amber; open total per tab | Add an item; mark one as paid; switch between Open and Paid                                                                 |
 | 8   | Add / edit payable or receivable | Payable or Receivable toggle, counterparty, amount, expected payment date, note                                                                                                                             | Save; when marking paid, pick a pocket and date, and the matching transaction is recorded                                   |
 | 9   | Home settings                    | Home name, members, home code, invite link and monthly budget per expense category                                                                                                                                                               | Copy or share the invite link (WhatsApp-friendly text); reset the home code; remove a member; set, change or clear a category's monthly budget; leave the home on this device |
+| 10  | Monthly summary                  | One month's income, expense and savings (income − expense, and as % of income); spending by category as a bar chart, largest first; change vs. the month before; budget results; up to four insights | Pick the month (previous / next); open it from a "See monthly summary" link on Home |
 
 **Default categories** (fixed list in the MVP):
 
 - Expense: Food and drinks, Groceries, Transport, Bills and utilities, Shopping, Health, Entertainment, Gifts, Debt payment, Other
 - Income: Salary, Bonus, Side income, Debt received, Other
+
+**Monthly insights** (screen 10). The app checks these rules in this order and shows the first four that apply. Months run from the 1st to the last day; amounts are whole rupiah.
+
+1. **Savings:** if income is more than expense, "You saved X% of your income" (rounded to a whole percent). If expense is more than income, "You spent Rp X more than you earned".
+2. **Over budget:** for each category over its budget, "Entertainment went over budget by Rp X".
+3. **Biggest increase:** the expense category that grew most compared with the month before, if it grew by at least 20% and at least Rp 100.000: "Food and drinks: X% more than last month".
+4. **Biggest decrease:** the category that shrank most, by the same thresholds: "Transport: X% less than last month".
+5. **Top category:** "Groceries was X% of your spending".
+6. **Largest expense:** "Largest expense: Rp X on Shopping (note, date)".
+
+A month with no transactions shows "No transactions in this month yet" instead of insights. A rule that needs the month before is skipped when that month has no transactions.
 
 ## Key user flows
 
@@ -71,7 +84,7 @@ You create the home and share the invite link (or read out the home code). Your 
 
 ## Data model
 
-Seven tables in one Cloudflare D1 database hold everything: homes, members, the devices each member uses, pockets, transactions, payables and receivables, and budgets. Every record belongs to one home. Ids are random text, money is whole rupiah stored as integers, and dates are text in ISO format (2026-10-16T09:30). A pocket's balance is calculated (opening balance + income − expenses in that pocket), never stored.
+Seven tables in one Cloudflare D1 database hold everything: homes, members, the devices each member uses, pockets, transactions, payables and receivables, and budgets. Every record belongs to one home. The monthly summary and its insights are calculated from transactions and budgets each time; nothing extra is stored. Ids are random text, money is whole rupiah stored as integers, and dates are text in ISO format (2026-10-16T09:30). A pocket's balance is calculated (opening balance + income − expenses in that pocket), never stored.
 
 **homes** — one row per home
 
@@ -231,6 +244,7 @@ The MVP is finished when every box below is ticked on two real phones.
 - ☐ Overdue items show in red, items due within 7 days show in amber, and Home lists what's due in the next 7 days
 - ☐ Marking an item paid records the matching expense or income in the chosen pocket
 - ☐ I can set a monthly budget for a category, and Home shows spent vs. limit, amber from 80% and red when over
+- ☐ The monthly summary shows a month's income, expense, savings and spending by category, correct to the rupiah, with insights that follow the Monthly insights rules
 - ☐ After resetting the home code, the old invite link fails but joined phones keep working
 - ☐ A removed member's phone loses access immediately
 - ☐ A second home made in another browser sees none of our data
@@ -238,7 +252,7 @@ The MVP is finished when every box below is ticked on two real phones.
 
 ## Build plan
 
-You build the app in 9 milestones, entirely in your browser. Every milestone follows the same cycle:
+You build the app in 10 milestones, entirely in your browser. Every milestone follows the same cycle:
 
 1. Start a new session at claude.ai/code on couple-money and paste the milestone's prompt.
 2. When Claude finishes, create a pull request from the session.
@@ -266,7 +280,7 @@ beginner and I work only in a web browser: I cannot install anything
 on my laptop, so never ask me to run commands. Explain every step in  
 simple words. Create a React + Vite + TypeScript app with Tailwind CSS,  
 designed phone-first, deployed as one Cloudflare Worker that serves the  
-app (static assets) and a small /api. Add all nine screens from the  
+app (static assets) and a small /api. Add all ten screens from the  
 Screens section as placeholder pages with the bottom tab bar, a helper  
 that formats Rupiah (25000 -> "Rp 25.000"), and an /api/health route  
 that returns "ok". Then tell me exactly what to click in the Cloudflare  
@@ -274,7 +288,7 @@ dashboard to connect this GitHub repository with Workers Builds, set
 main as the production branch, and turn on builds for non-production  
 branches so pull requests get preview links.
 
-Check it works: follow Claude's Cloudflare steps, then merge the pull request. Open your app's workers.dev address on your phone: you can tap through all nine screens, and /api/health shows ok.
+Check it works: follow Claude's Cloudflare steps, then merge the pull request. Open your app's workers.dev address on your phone: you can tap through all ten screens, and /api/health shows ok.
 
 ### Milestone 2: Database
 
@@ -368,7 +382,19 @@ this month's expenses in that category, from the 1st of the month.
 
 Check it works: set a Food and drinks budget of Rp 100.000, add a Rp 85.000 food expense (the bar turns amber), then another Rp 20.000 (red, over budget). Your partner sees the same budget.
 
-### Milestone 9: Polish and home-screen shortcut
+### Milestone 9: Monthly summary and insights
+
+Build the Monthly summary screen from SPEC.md, opened from a "See  
+monthly summary" link on Home. Show the chosen month (previous / next  
+buttons) with income, expense and savings, spending by category as a  
+horizontal bar chart (largest first, amounts as labels), the change in  
+each category vs. the month before, and the budget results. Work out  
+the insights exactly as the Monthly insights rules in SPEC.md say,  
+in a separate function with tests.
+
+Check it works: in your test home, add expenses in two months (change the date on a few). Open the summary for each month and check the totals and percentages with a calculator, and that each insight matches the rules.
+
+### Milestone 10: Polish and home-screen shortcut
 
 Make the app a PWA so it can be added to the phone home screen, with an  
 app name, an icon, a theme color and full-screen display. Check every  
