@@ -4,16 +4,18 @@ import Screen, { ButtonLink } from "../components/Screen.tsx";
 export default function JoinScreen() {
   const { code } = useParams();
   return (
-    <div className="mx-auto min-h-dvh max-w-md bg-white">
-      <Screen
-        number={2}
-        title="Join a home"
-        backTo="/welcome"
-        shows="Opened from an invite link. Shows the home's name and its existing members. Pick your name if you joined before on another device, or type a new name, then tap Join."
-      >
-        <p className="text-sm text-slate-500">Home code from the link: {code}</p>
-        <ButtonLink to="/">Join</ButtonLink>
-      </Screen>
-    </div>
+    <Screen
+      number={5}
+      title="Join a home"
+      backTo="/setup"
+      shows="Opened from an invite link or after entering a home code. Shows the home's name and its members. If you aren't logged in yet, you sign up or log in first and come back here."
+    >
+      <div className="rounded-xl bg-slate-50 p-3 text-sm">
+        <p className="font-semibold">Our home</p>
+        <p className="text-slate-500">Members: martino, sari</p>
+        <p className="text-xs text-slate-400">Code from the link: {code}</p>
+      </div>
+      <ButtonLink to="/">Join</ButtonLink>
+    </Screen>
   );
 }

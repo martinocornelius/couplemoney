@@ -5,7 +5,7 @@ export default function DebtFormScreen() {
   const { id } = useParams();
   return (
     <Screen
-      number={8}
+      number={11}
       title={id ? "Edit payable or receivable" : "Add payable or receivable"}
       backTo="/debts"
       shows="Payable or Receivable toggle, counterparty, amount, expected payment date and note. When marking paid, pick a pocket and date, and the matching transaction is recorded."

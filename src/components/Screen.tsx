@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { Link } from "react-router";
+import { Link, Outlet } from "react-router";
 
 type ScreenProps = {
   number: number;
@@ -49,5 +49,29 @@ export function SecondaryLink({ to, children }: { to: string; children: ReactNod
     >
       {children}
     </Link>
+  );
+}
+
+/** Disabled form field for placeholder screens; becomes a real input when the screen is built. */
+export function Field({ label, placeholder, type = "text" }: { label: string; placeholder?: string; type?: string }) {
+  return (
+    <label className="flex flex-col gap-1 text-sm font-medium">
+      {label}
+      <input
+        disabled
+        type={type}
+        placeholder={placeholder}
+        className="rounded-lg border border-slate-300 bg-white px-3 py-2 font-normal"
+      />
+    </label>
+  );
+}
+
+/** Wrapper for screens shown before joining a home (no tab bar). */
+export function PublicLayout() {
+  return (
+    <div className="mx-auto min-h-dvh max-w-md bg-white">
+      <Outlet />
+    </div>
   );
 }

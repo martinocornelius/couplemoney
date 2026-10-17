@@ -4,7 +4,7 @@ A shared money log for couples and their families. See [SPEC.md](SPEC.md) for wh
 
 ## How it is built
 
-- **App:** React + Vite + TypeScript + Tailwind CSS, in `src/`. Each of the ten screens is a file in `src/screens/`.
+- **App:** React + Vite + TypeScript + Tailwind CSS, in `src/`. Each screen from SPEC.md is a file in `src/screens/`.
 - **Server:** one Cloudflare Worker, in `worker/index.ts`. It serves the built app and answers `/api/...` requests.
 - **Settings:** `wrangler.jsonc` (the Worker's name is `couple-money`).
 

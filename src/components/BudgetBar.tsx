@@ -1,4 +1,5 @@
 import { formatRupiah } from "../lib/rupiah.ts";
+import ProgressBar from "./ProgressBar.tsx";
 
 /** Spent vs. monthly limit for one category: amber from 80%, red when over. */
 export default function BudgetBar({ category, spent, limit }: { category: string; spent: number; limit: number }) {
@@ -12,9 +13,7 @@ export default function BudgetBar({ category, spent, limit }: { category: string
           {formatRupiah(spent)} / {formatRupiah(limit)}
         </span>
       </div>
-      <div className="h-2 overflow-hidden rounded-full bg-slate-200">
-        <div className={`h-full ${color}`} style={{ width: `${Math.min(ratio, 1) * 100}%` }} />
-      </div>
+      <ProgressBar ratio={ratio} color={color} />
     </div>
   );
 }
