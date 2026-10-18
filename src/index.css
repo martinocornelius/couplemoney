@@ -10,3 +10,20 @@
 body {
   @apply bg-slate-100 text-slate-900 antialiased;
 }
+
+/* Chart colors (SPEC.md, "Charts"). Series slots in a fixed order, checked for
+   color-blind safety on the card surface; the lighter ones are always paired
+   with a list or table, so no value depends on color alone. */
+:root {
+  --chart-1: #2a78d6; /* blue */
+  --chart-2: #eb6834; /* orange */
+  --chart-3: #1baf7a; /* aqua */
+  --chart-4: #eda100; /* yellow */
+  --chart-5: #e87ba4; /* pink */
+  --chart-6: #008300; /* green */
+  --chart-other: #898781; /* "Everything else" */
+  --chart-surface: #f8fafc; /* card background (slate-50): gaps and marker rings */
+  --chart-grid: #e2e8f0; /* hairline gridlines */
+  --chart-axis-text: #64748b;
+  --chart-crosshair: #94a3b8;
+}

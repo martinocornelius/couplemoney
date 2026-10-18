@@ -2,7 +2,7 @@ import Screen, { ButtonLink } from "../components/Screen.tsx";
 import { formatRupiah } from "../lib/rupiah.ts";
 
 const sampleRules = [
-  { what: "Salary", type: "Income", amount: 7500000, pockets: "BCA joint account", day: "25th", by: "martino" },
+  { what: "Salary", type: "Income", amount: 7500000, pockets: "BCA joint account", day: "1st", by: "martino" },
   { what: "Rent", type: "Expense", amount: 4500000, pockets: "BCA joint account", day: "1st", by: "sari" },
   { what: "Save for Bali", type: "Transfer", amount: 734000, pockets: "BCA → Bali trip 2027", day: "26th", by: "martino" },
 ];
