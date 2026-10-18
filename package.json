@@ -10,7 +10,7 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "preview": "vite build && vite preview",
-    "test": "node --test 'src/**/*.test.ts'",
+    "test": "node --test 'src/**/*.test.ts' 'tests/**/*.test.ts'",
     "deploy": "vite build && wrangler deploy"
   },
   "dependencies": {
