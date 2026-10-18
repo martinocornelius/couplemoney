@@ -1,0 +1,21 @@
+// Cloudflare Worker settings. One Worker serves the app (static files)
+// and the small /api. The name must match the Worker name in the
+// Cloudflare dashboard.
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "couple-money",
+  "main": "worker/index.ts",
+  "compatibility_date": "2026-10-01",
+  // Live address: couple-money.<your-subdomain>.workers.dev
+  "workers_dev": true,
+  // Each pull request gets its own preview link.
+  "preview_urls": true,
+  "assets": {
+    // Any page address that is not a file (like /pockets) gets index.html,
+    // so the React app can show the right screen.
+    "not_found_handling": "single-page-application",
+    // Requests to /api/... go to the Worker code first.
+    "run_worker_first": ["/api/*"]
+  },
+  "observability": { "enabled": true }
+}
