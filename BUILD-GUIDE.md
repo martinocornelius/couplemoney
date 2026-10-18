@@ -17,7 +17,7 @@ To tick a box, edit this file on GitHub (pencil icon) and change `[ ]` to `[x]`.
 | --- | --- | --- |
 | 1 | Put the skeleton online | 1 |
 | 2 | Add the database | 2 |
-| 3 | Build the features, one at a time | 3 to 13 |
+| 3 | Build the features, one at a time | 3 to 14 |
 | 4 | Go live with your family | none |
 | 5 | Keep improving (email sign-in next) | Later list |
 
@@ -82,7 +82,7 @@ Button names can differ a little from what's written here; look for the closest 
 ### Step 5: Check the live app
 
 - [ ] Open `https://couple-money.<your-subdomain>.workers.dev/api/health`. The page should show `ok`.
-- [ ] On your phone, open `https://couple-money.<your-subdomain>.workers.dev/welcome` and tap through all 15 screens: Landing, Sign up, Create or join, Home, the tabs, the + button and the links in Settings.
+- [ ] On your phone, open `https://couple-money.<your-subdomain>.workers.dev/welcome` and tap through every screen: Landing, Sign up, Create or join, Home, the tabs, the + button and the links in Settings.
 - [ ] Bookmark the address.
 
 **Part 1 is done when** the live address works on your phone.
@@ -98,9 +98,9 @@ Button names can differ a little from what's written here; look for the closest 
 - [ ] Copy the **Database ID** from the database's page and paste it into the Claude session. The ID is not a secret.
 - [ ] Ask Claude: "Show me schema.sql so I can copy it." Copy all of it.
 - [ ] **Run SQL:** on the database's page, open **Console**, paste the SQL and click **Execute**. This is also how you run any SQL Claude gives you later.
-- [ ] Continue with the loop from step 4. Check that the nine tables are listed and that the preview's `/api/health` says the database is connected, then merge.
+- [ ] Continue with the loop from step 4. Check that the ten tables are listed and that the preview's `/api/health` says the database is connected, then merge.
 
-## Part 3: Build the features (Milestones 3 to 13)
+## Part 3: Build the features (Milestones 3 to 14)
 
 Run the loop once for each milestone below, in order. Some have extra steps.
 
@@ -111,15 +111,16 @@ Run the loop once for each milestone below, in order. Some have extra steps.
   ```
 
 - [ ] **Milestone 4: Create and join a home.** Test with two test accounts in a home called "Test home". Keep your own account out of it, because you'll create your real home in Part 4. Use these test accounts for every check from here on.
-- [ ] **Milestone 5: Pockets**
+- [ ] **Milestone 5: Pockets and categories**
 - [ ] **Milestone 6: Transactions and transfers**
 - [ ] **Milestone 7: Home feed, totals and live updates**
 - [ ] **Milestone 8: Payables, receivables and net worth**
 - [ ] **Milestone 9: Monthly budgets**
 - [ ] **Milestone 10: Savings goals and balance check**
 - [ ] **Milestone 11: Recurring entries.** Scheduled jobs don't run on preview links. After merging, add one test entry on the live app with tomorrow's day, and check the next morning that it was recorded by itself.
-- [ ] **Milestone 12: Monthly summary and insights**
-- [ ] **Milestone 13: Polish and home-screen shortcut.** At the end, ask Claude: "List anything in SPEC.md that is not built yet." The list should be empty.
+- [ ] **Milestone 12: Monthly summary, charts and insights**
+- [ ] **Milestone 13: Export to Excel.** Open the downloaded file in Excel or Google Sheets (Google Drive → New → File upload, then open it) to check it.
+- [ ] **Milestone 14: Polish and home-screen shortcut.** At the end, ask Claude: "List anything in SPEC.md that is not built yet." The list should be empty.
 
 ## Part 4: Go live with your family
 

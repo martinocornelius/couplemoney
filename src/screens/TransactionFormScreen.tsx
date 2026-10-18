@@ -1,10 +1,12 @@
 import { useParams } from "react-router";
 import Screen from "../components/Screen.tsx";
+import { DEFAULT_CATEGORIES } from "../lib/categories.ts";
 
 const types = ["Expense", "Income", "Transfer"];
 
 export default function TransactionFormScreen() {
   const { id } = useParams();
+  const expenseCategories = DEFAULT_CATEGORIES.filter((c) => c.kind === "expense");
   return (
     <Screen
       number={7}
@@ -16,6 +18,16 @@ export default function TransactionFormScreen() {
         {types.map((t, i) => (
           <span key={t} className={`rounded-lg py-2 text-center ${i === 0 ? "bg-white shadow-sm" : "text-slate-500"}`}>
             {t}
+          </span>
+        ))}
+      </div>
+      <div className="grid grid-cols-4 gap-2">
+        {expenseCategories.map((c) => (
+          <span key={c.name} className="flex flex-col items-center gap-1 rounded-xl bg-slate-50 px-1 py-2 text-center">
+            <span className="text-xl" aria-hidden>
+              {c.emoji}
+            </span>
+            <span className="text-[11px] leading-tight text-slate-600">{c.name}</span>
           </span>
         ))}
       </div>

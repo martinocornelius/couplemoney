@@ -16,6 +16,7 @@ import SettingsScreen from "./screens/SettingsScreen.tsx";
 import RecurringScreen from "./screens/RecurringScreen.tsx";
 import SummaryScreen from "./screens/SummaryScreen.tsx";
 import AdminScreen from "./screens/AdminScreen.tsx";
+import CategoriesScreen from "./screens/CategoriesScreen.tsx";
 import NotFoundScreen from "./screens/NotFoundScreen.tsx";
 
 export default function App() {
@@ -30,7 +31,7 @@ export default function App() {
         <Route path="/join/:code" element={<JoinScreen />} />
       </Route>
 
-      {/* Screens 6-15: inside a home, with the bottom tab bar */}
+      {/* Screens 6-16: inside a home, with the bottom tab bar */}
       <Route element={<AppLayout />}>
         <Route index element={<HomeScreen />} />
         <Route path="transactions/new" element={<TransactionFormScreen />} />
@@ -45,6 +46,7 @@ export default function App() {
         <Route path="recurring" element={<RecurringScreen />} />
         <Route path="summary" element={<SummaryScreen />} />
         <Route path="admin" element={<AdminScreen />} />
+        <Route path="categories" element={<CategoriesScreen />} />
         <Route path="*" element={<NotFoundScreen />} />
       </Route>
     </Routes>
