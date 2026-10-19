@@ -26,5 +26,17 @@
       "database_name": "couple-money-db",
       "database_id": "42460db2-62c2-4f1e-b4af-bcb7768ce7f6"
     }
-  ]
+  ],
+  // Preview links (one per pull request, made by `npx wrangler preview`) use
+  // their own test database with the same tables, so testing never touches
+  // real data. Run schema.sql in its D1 Console too.
+  "previews": {
+    "d1_databases": [
+      {
+        "binding": "DB",
+        "database_name": "couple-money-preview-db",
+        "database_id": "89be7735-90ff-492a-8a31-2e40666e272b"
+      }
+    ]
+  }
 }
