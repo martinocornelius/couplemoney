@@ -17,5 +17,14 @@
     // Requests to /api/... go to the Worker code first.
     "run_worker_first": ["/api/*"]
   },
-  "observability": { "enabled": true }
+  "observability": { "enabled": true },
+  // The database (SPEC.md, "Data model"). schema.sql creates its tables:
+  // run it in the D1 Console. The ID is not a secret.
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "couple-money-db",
+      "database_id": "42460db2-62c2-4f1e-b4af-bcb7768ce7f6"
+    }
+  ]
 }
