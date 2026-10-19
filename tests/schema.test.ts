@@ -84,6 +84,19 @@ test("every GLOB pattern fits D1's 50-byte limit", () => {
   }
 });
 
+test("still works when pasted as one line, like the D1 Console does", () => {
+  // The Console's input box turns line breaks into spaces. A "--" note would
+  // then hide everything after it, so notes must be /* ... */ without ";".
+  assert.ok(!schema.includes("--"), "no -- notes");
+  for (const note of schema.match(/\/\*[\s\S]*?\*\//g) ?? []) {
+    assert.ok(!note.includes(";"), `no semicolon in the note ${note.slice(0, 40)}`);
+  }
+  const db = new DatabaseSync(":memory:");
+  db.exec(schema.replace(/\n/g, " "));
+  const count = db.prepare("SELECT count(*) AS n FROM sqlite_master WHERE type = 'table'").get();
+  assert.equal(count?.n, TABLES.length);
+});
+
 test("times must look like 2026-10-16T09:30", () => {
   const db = freshDb();
   const add = (when: string) => () =>
