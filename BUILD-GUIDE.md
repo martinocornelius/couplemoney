@@ -98,7 +98,7 @@ Button names can differ a little from what's written here; look for the closest 
 - [ ] Copy the **Database ID** from the database's page and paste it into the Claude session. The ID is not a secret.
 - [ ] Ask Claude: "Show me schema.sql so I can copy it." Copy all of it.
 - [ ] **Run SQL:** on the database's page, open **Console**, paste the SQL and click **Execute**. This is also how you run any SQL Claude gives you later.
-- [ ] Continue with the loop from step 4. Check that the ten tables are listed and that the preview's `/api/health` says the database is connected, then merge.
+- [ ] Continue with the loop from step 4. Check that the ten tables are listed and that the preview's `/api/health` shows `"status":"ok"` and `"tables":"10 of 10"`, then merge.
 
 ## Part 3: Build the features (Milestones 3 to 14)
 

@@ -186,8 +186,8 @@ Ten tables in one Cloudflare D1 database hold everything: users, sessions, homes
 | Field      | Type | Notes |
 | ---------- | ---- | ----- |
 | id         | text | Random id, generated automatically |
-| name       | text | e.g. "Our home" |
-| home_code  | text | 12 random characters shown as XXXX-XXXX-XXXX; unique; no look-alikes such as 0/O or 1/I; replaced when someone resets it |
+| name       | text | e.g. "Our home"; up to 50 characters |
+| home_code  | text | 12 random characters, stored without dashes and shown as XXXX-XXXX-XXXX: capital letters and digits without the look-alikes 0, 1, I and O; unique; replaced when someone resets it |
 | created_by | text | The account that created it |
 | created_at | text | Set automatically |
 
@@ -207,9 +207,9 @@ Ten tables in one Cloudflare D1 database hold everything: users, sessions, homes
 | --------------- | ------- | ----- |
 | id              | text    | Random id |
 | home_id         | text    | Points to homes |
-| name            | text    | e.g. "BCA joint account", "Cash in wallet", "Bali trip 2027" |
+| name            | text    | e.g. "BCA joint account", "Cash in wallet", "Bali trip 2027"; up to 50 characters |
 | type            | text    | bank, cash, e_wallet or other |
-| bank_name       | text    | Required when type is bank; empty otherwise |
+| bank_name       | text    | Required when type is bank (up to 50 characters); empty otherwise |
 | account_number  | text    | Rekening number. Required when type is bank: digits only, 5 to 20 long. Must be empty for every other type. Stored as text so leading zeros are kept |
 | opening_balance | integer | Whole rupiah in the pocket when it is added |
 | goal_amount     | integer | Optional savings goal: the target in whole rupiah; empty = no goal |
@@ -227,7 +227,7 @@ The database itself checks the bank rule: a bank pocket without a bank name or a
 | id         | text    | Random id |
 | home_id    | text    | Points to homes |
 | kind       | text    | income or expense |
-| name       | text    | Up to 30 characters; unique within the home for its kind |
+| name       | text    | Up to 30 characters; unique within the home for its kind, ignoring capitals |
 | emoji      | text    | One emoji shown in the category grid, e.g. 🍜 |
 | built_in   | integer | 1 for Debt payment, Debt received and the two Other categories: they can't be renamed or hidden; 0 otherwise |
 | hidden     | integer | 1 = hidden from the category grid (its history still shows in lists, charts and exports), 0 = shown |
@@ -283,7 +283,7 @@ Every day at 00:05 WIB a scheduled job (a Cron Trigger on the same Worker) recor
 | id                     | text    | Random id |
 | home_id                | text    | Points to homes |
 | kind                   | text    | payable (the family owes, hutang) or receivable (owed to the family, piutang) |
-| counterparty           | text    | Person or company, e.g. "Budi" or "Credit card" |
+| counterparty           | text    | Person or company, e.g. "Budi" or "Credit card"; up to 50 characters |
 | amount                 | integer | Whole rupiah, always positive |
 | due_date               | text    | Expected payment date, e.g. 2026-11-25 |
 | status                 | text    | open or paid |
