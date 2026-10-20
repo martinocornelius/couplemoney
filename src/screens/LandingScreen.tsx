@@ -2,7 +2,7 @@ import Screen, { ButtonLink, SecondaryLink } from "../components/Screen.tsx";
 
 export default function LandingScreen() {
   return (
-    <Screen number={1} title="Couple Money" shows="Shown when this browser isn't logged in. What the app does in one line, then Sign up or Log in.">
+    <Screen title="Couple Money">
       <div className="rounded-2xl bg-brand-50 p-6 text-center">
         <p className="text-2xl font-bold text-brand-700">Track money together.</p>
         <p className="text-2xl font-bold text-brand-700">Save for your dreams.</p>

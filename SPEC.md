@@ -83,6 +83,8 @@ The MVP has sixteen screens, all designed phone-first (375 px wide). A bottom ta
 | 15  | Admin (app admin only)           | Opened from Home settings or Create or join a home. Find an account by username: when it was made and whether it is locked; never a passcode, and never any home's money | Reset the passcode: shows a one-time passcode once, valid for 24 hours |
 | 16  | Categories                       | Opened from Home settings. Two tabs, Expense and Income: every category with its emoji, built-in ones marked, hidden ones at the bottom | Add a category (name + emoji); rename it or change its emoji; hide it or show it again (built-in ones can't be renamed or hidden) |
 
+**Change passcode** is a small page opened from screens 4 and 12: the current passcode, then the new one twice. Right after an admin reset it opens by itself as "Choose a new passcode", without the current passcode, and nothing else opens until it's done.
+
 **Default categories.** Every new home starts with this list, made for Indonesian households. Any member can add their own, rename them or hide the ones they don't use (screen 16). Built-in categories can't be renamed or hidden: payables and receivables use the debt ones, and Other is always there as a fallback. Transfers and balance adjustments have no category.
 
 | Expense | Income |
@@ -161,7 +163,7 @@ Ten tables in one Cloudflare D1 database hold everything: users, sessions, homes
 | -------------------- | ------- | ----- |
 | id                   | text    | Random id |
 | username             | text    | 3 to 20 characters: lowercase letters, numbers, dot or underscore; unique across the whole app; the name other members see |
-| passcode_hash        | text    | PBKDF2-SHA256 hash of the passcode with 100,000 iterations (the most Cloudflare Workers allows). The passcode itself is never stored, logged or shown |
+| passcode_hash        | text    | PBKDF2-SHA256 hash of the passcode with 100,000 iterations (the most Cloudflare Workers allows), stored as `pbkdf2-sha256:<iterations>:<hash>` so the iteration count can change later. The passcode itself is never stored, logged or shown |
 | passcode_salt        | text    | 16 random bytes, different for every account |
 | must_change_passcode | integer | 1 after an admin reset: the next log in must choose a new passcode; 0 otherwise |
 | reset_expires_at     | text    | When the one-time passcode from an admin reset stops working; empty otherwise |
@@ -324,13 +326,13 @@ Each person has their own account. Three things protect the app: the passcode pr
 | Export transactions to Excel | Any member, only their own home's transactions |
 | Reset the home code | Any member; old links and codes stop working, members keep working |
 | Remove a member | Any member; that account loses access to the home immediately (it can still log in and create or join another home) |
-| Change a passcode | Only the account's owner, after typing the current passcode |
+| Change a passcode | Only the account's owner, after typing the current passcode (or right after logging in with a one-time passcode) |
 | Reset someone's passcode | Only the app admin; the admin never sees a passcode or any home's money |
 
-- **Passcodes:** 6 to 64 characters: letters, numbers or both. Stored only as a PBKDF2-SHA256 hash with its own random salt: never stored readable, never written to logs, never sent back by the API and never shown on any screen, including Admin. Sign up warns: don't reuse your bank PIN.
+- **Passcodes:** 6 to 64 characters of any kind (letters, numbers, symbols), so a number-only passcode works too. Stored only as a PBKDF2-SHA256 hash with its own random salt: never stored readable, never written to logs, never sent back by the API and never shown on any screen, including Admin. Sign up warns: don't reuse your bank PIN.
 - **Wrong passcodes:** after 5 wrong passcodes in a row, that username can't log in for 15 minutes. The error always says "Wrong username or passcode", never which one was wrong.
 - **Sessions:** logging in creates a random 32-byte token in a cookie that the page's code can't read (HttpOnly, Secure, SameSite=Lax). The database stores only its SHA-256 hash. Log out deletes the session, and a session ends by itself after 90 days without use. Changing your passcode logs out your other devices.
-- **Admin reset:** makes a one-time passcode of 10 random characters (no look-alikes such as 0/O or 1/I), shows it to the admin once and stores only its hash. It works for 24 hours, clears any lock, logs that account out everywhere, and the next log in must choose a new passcode. Whoever holds the one-time passcode can get into the account, so the admin first confirms the person (for example with a call) and sends it privately.
+- **Admin reset:** makes a one-time passcode of 10 random characters (no look-alikes such as 0/O or 1/I), shows it to the admin once and stores only its hash. It works for 24 hours, clears any lock, logs that account out everywhere, and the next log in must choose a new passcode. Whoever holds the one-time passcode can get into the account, so the admin first confirms the person (for example with a call) and sends it privately. The admin changes their own passcode with Change passcode, not with a reset.
 - **Who is admin:** after you sign up, run `UPDATE users SET is_admin = 1 WHERE username = 'yourname';` once in the D1 Console. No screen or API can make anyone admin.
 - **Home code:** 12 random characters (about 60 bits) made with a secure random generator on the server, so guessing one is not practical.
 - **Every request checked:** every API call except sign up, log in and the health check needs a valid session. A missing or expired session gets a "not logged in" error and the app goes to the landing page. An account that isn't in a home can only create or join one.

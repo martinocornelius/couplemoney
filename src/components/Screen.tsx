@@ -2,15 +2,15 @@ import type { ReactNode } from "react";
 import { Link, Outlet } from "react-router";
 
 type ScreenProps = {
-  number: number;
   title: string;
-  /** What the finished screen will show, from SPEC.md. */
-  shows: string;
+  /** Only for screens not built yet: their number and what they will show, from SPEC.md. */
+  number?: number;
+  shows?: string;
   backTo?: string;
   children?: ReactNode;
 };
 
-/** Placeholder layout shared by all nine screens until each one is built. */
+/** The layout every screen shares. Screens not built yet also show a placeholder note. */
 export default function Screen({ number, title, shows, backTo, children }: ScreenProps) {
   return (
     <div className="flex flex-col gap-4 p-4">
@@ -22,9 +22,11 @@ export default function Screen({ number, title, shows, backTo, children }: Scree
         )}
         <h1 className="text-xl font-bold">{title}</h1>
       </header>
-      <p className="rounded-xl border border-dashed border-slate-300 bg-slate-50 p-3 text-sm text-slate-600">
-        <span className="font-semibold">Screen {number} (placeholder).</span> {shows}
-      </p>
+      {shows && (
+        <p className="rounded-xl border border-dashed border-slate-300 bg-slate-50 p-3 text-sm text-slate-600">
+          <span className="font-semibold">Screen {number} (placeholder).</span> {shows}
+        </p>
+      )}
       {children}
     </div>
   );
