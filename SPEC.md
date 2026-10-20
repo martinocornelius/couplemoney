@@ -153,7 +153,7 @@ flowchart LR
 
 ## Data model
 
-Ten tables in one Cloudflare D1 database hold everything: users, sessions, homes, members, pockets, categories, transactions, recurring rules, payables and receivables, and budgets. Every record except users and sessions belongs to one home. Ids are random text, money is whole rupiah stored as integers, and dates are text in ISO format (2026-10-16T09:30) in WIB. A pocket's balance is calculated (opening balance + income − expenses + transfers in − transfers out + adjustments in that pocket), never stored. Net worth, goal progress, the monthly summary, its charts and insights, and Excel exports are also calculated each time; nothing extra is stored.
+Ten tables in one Cloudflare D1 database hold everything: users, sessions, homes, members, pockets, categories, transactions, recurring rules, payables and receivables, and budgets. Preview links use a second database with the same tables, for testing. Every record except users and sessions belongs to one home. Ids are random text, money is whole rupiah stored as integers, and dates are text in ISO format (2026-10-16T09:30) in WIB. A pocket's balance is calculated (opening balance + income − expenses + transfers in − transfers out + adjustments in that pocket), never stored. Net worth, goal progress, the monthly summary, its charts and insights, and Excel exports are also calculated each time; nothing extra is stored.
 
 **users** — one row per account
 
@@ -338,7 +338,7 @@ Each person has their own account. Three things protect the app: the passcode pr
 - **Home boundaries:** every query is filtered by the caller's home, and every id the app sends (pocket, category, transaction, rule, item) is checked to belong to that home.
 - **No SQL injection:** all queries use bound parameters (prepared statements), never text glued into SQL.
 - **HTTPS:** Cloudflare serves the app over HTTPS only.
-- **Preview links share the live database,** so test new features in a separate test home with test accounts.
+- **Preview links use their own test database** (`couple-money-preview-db`) with the same tables as the live one (`couple-money-db`), so testing never touches real data. When the table layout changes, run the SQL in the test database first, then in the live database right after merging.
 - **Trade-off to accept:** anyone holding an unlocked phone that is logged in can see the whole home, including account numbers. The admin can reset any passcode, so the admin must be someone every family using the app trusts. Share the invite link only with family, and reset the home code if it leaks. A quick lock is on the later list.
 - **Proof test:** a second account that makes its own home in another browser sees none of the first home's data; after a home code reset the old invite link fails; after an admin reset the old passcode fails.
 
@@ -353,8 +353,8 @@ Everything runs in your browser and in the cloud, so nothing is installed on you
 | Code storage    | GitHub (private repository)                           | Every change is saved; pull requests let you test before going live |
 | Frontend        | React + Vite + TypeScript + Tailwind CSS              | AI writes it reliably; Cloudflare builds it, not your laptop |
 | Hosting and API | One Cloudflare Worker (static assets + /api)          | One project serves both the app and its data |
-| Database        | Cloudflare D1                                         | A SQL database you can create and query in the Cloudflare dashboard |
-| Deploys         | Workers Builds connected to GitHub                    | Merging into main updates the live app; other branches get preview links |
+| Database        | Cloudflare D1: a live database and a test database    | SQL databases you can create and query in the Cloudflare dashboard; preview links only use the test one |
+| Deploys         | Workers Builds connected to GitHub                    | Merging into main updates the live app; other branches get preview links (`npx wrangler preview`) |
 | Live updates    | The app checks for changes every 5 seconds while open | Simple and reliable, with no extra service |
 | Accounts        | Username + passcode, session cookie                   | Works without email for the MVP; email sign-in comes later |
 | Joining a home  | Home code or invite link                              | Only people you share it with can join |
@@ -474,7 +474,7 @@ passcode to a one-time passcode valid for 24 hours, after which they
 must choose a new one. Tell me exactly how to make my account the  
 admin in the D1 Console.
 
-Check it works: on the preview link, sign up in a normal window, log out and log back in. Make your account admin as Claude explains. In an incognito window, sign up a second test account, log out, then type a wrong passcode 5 times: it's locked. Reset it from Admin in the normal window, log in to the second account with the one-time passcode and choose a new one; the old passcode no longer works. No screen ever shows a passcode.
+Check it works: on the preview link, sign up in a normal window, log out and log back in. Make that account admin in the test database's D1 Console, as Claude explains; after merging, do the same for your real account in the live database. In an incognito window, sign up a second test account, log out, then type a wrong passcode 5 times: it's locked. Reset it from Admin in the normal window, log in to the second account with the one-time passcode and choose a new one; the old passcode no longer works. No screen ever shows a passcode.
 
 ### Milestone 4: Create and join a home
 

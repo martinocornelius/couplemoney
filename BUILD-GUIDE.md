@@ -30,10 +30,10 @@ From Milestone 2 on, every milestone follows these steps:
 3. Answer Claude's questions. Wait until it says it has pushed the changes.
 4. Click **Create PR** in the session, then **Create pull request** on GitHub.
 5. Wait a few minutes. Cloudflare adds a comment to the pull request with a **Preview URL**. Open it: that's the new version, not yet live.
-6. Do the milestone's **Check it works** steps on the preview link. Test with test accounts (for example `test.a` and `test.b`), not your own: preview links use the same database as the live app.
+6. Do the milestone's **Check it works** steps on the preview link. Preview links use their own test database, so create test accounts (for example `test.a` and `test.b`) and homes freely: nothing you do there reaches the live app.
 7. If everything works, click **Merge pull request** on the pull request, then **Confirm merge**. A few minutes later, the live app has the new version.
 8. If something is wrong, go back to the same session. Say what you did, what you expected and what happened, and paste a screenshot (Windows + Shift + S, then Ctrl + V). Claude fixes it and pushes to the same pull request, the preview updates, and you check again.
-9. If Claude says the database needs a change, it gives you SQL to run. Run it in the D1 Console (see Part 2) before you test the preview.
+9. If Claude says the database needs a change, it gives you SQL to run. Run it in the test database's D1 Console (`couple-money-preview-db`) before you test the preview, and in the live database's (`couple-money-db`) right after merging.
 
 Never start the next milestone before the current one is merged.
 
@@ -69,7 +69,7 @@ Button names can differ a little from what's written here; look for the closest 
   | Build command | `npm run build` |
   | Deploy command | `npx wrangler deploy` |
   | Builds for non-production branches | ticked |
-  | Non-production branch deploy command | `npx wrangler versions upload` |
+  | Non-production branch deploy command | `npx wrangler preview` (Cloudflare's default) |
   | Root directory | leave empty |
 
 - [ ] Click **Create and deploy** (or **Deploy**), then wait 2 to 4 minutes for the build to finish with a green tick.
@@ -98,19 +98,20 @@ Button names can differ a little from what's written here; look for the closest 
 - [ ] Copy the **Database ID** from the database's page and paste it into the Claude session. The ID is not a secret.
 - [ ] Ask Claude: "Show me schema.sql so I can copy it." Copy all of it.
 - [ ] **Run SQL:** on the database's page, open **Console**, paste the SQL and click **Execute**. This is also how you run any SQL Claude gives you later.
+- [ ] Create the **test database** for preview links the same way: name it `couple-money-preview-db`, run `schema.sql` in its Console too, and send Claude its Database ID.
 - [ ] Continue with the loop from step 4. Check that the ten tables are listed and that the preview's `/api/health` shows `"status":"ok"` and `"tables":"10 of 10"`, then merge.
 
 ## Part 3: Build the features (Milestones 3 to 14)
 
 Run the loop once for each milestone below, in order. Some have extra steps.
 
-- [ ] **Milestone 3: Sign up, log in and admin reset.** On the preview link, sign up with **your real username** (for example `martino`) and a passcode you'll remember. Preview links share the live database, so this is your real account. Then make yourself the admin: in the D1 Console, run the line below with your own username. Use test accounts in an incognito window for the other checks.
+- [ ] **Milestone 3: Sign up, log in and admin reset.** On the preview link, sign up a test account and make it the admin: in the **test** database's D1 Console (`couple-money-preview-db`), run the line below with that username. Use more test accounts in an incognito window for the other checks. After merging, sign up on the live app with **your real username** and a passcode you'll remember, then run the same line in the **live** database's Console (`couple-money-db`).
 
   ```sql
   UPDATE users SET is_admin = 1 WHERE username = 'martino';
   ```
 
-- [ ] **Milestone 4: Create and join a home.** Test with two test accounts in a home called "Test home". Keep your own account out of it, because you'll create your real home in Part 4. Use these test accounts for every check from here on.
+- [ ] **Milestone 4: Create and join a home.** On the preview link, test with two test accounts in a home called "Test home". Use these test accounts for every check from here on; they only exist in the test database.
 - [ ] **Milestone 5: Pockets and categories**
 - [ ] **Milestone 6: Transactions and transfers**
 - [ ] **Milestone 7: Home feed, totals and live updates**
@@ -134,7 +135,7 @@ Run the loop once for each milestone below, in order. Some have extra steps.
   - **Android:** in Chrome, tap **⋮ → Add to home screen** (or **Install app**).
 - [ ] Start the habit: log every payment right when you pay. Once a month, sit together for 15 minutes, adjust each pocket's balance to match your bank apps, and read the monthly summary and its insights together.
 
-Other families can sign up at the same address and make their own home; they never see yours. Your test accounts and "Test home" can stay, because nobody else can see them either.
+Other families can sign up at the same address and make their own home; they never see yours. Your test accounts and "Test home" only exist in the test database, so the live app starts clean.
 
 ## Part 5: After launch
 
@@ -151,7 +152,7 @@ Other families can sign up at the same address and make their own home; they nev
 - **A Cloudflare build failed** (a red cross on the pull request or in the Worker's deployments): open the build log, copy the red error lines and paste them into that milestone's session.
   - If the log says `tsc: not found` or `Cannot find module`, go to the Worker's **Settings → Build** and change the build command to `npm ci && npm run build`.
   - If it complains about the Node.js version, go to **Settings → Build → Variables**, add `NODE_VERSION` with the value `22`, then retry the build.
-- **No preview link on a pull request:** check Part 1, step 4. The first preview can take a few minutes.
+- **No preview link on a pull request:** check Part 1, step 4. The first preview can take a few minutes. If the build log says the Wrangler configuration is missing a `previews` block, ask Claude to add one: it says which database preview links use.
 - **The live app broke after a merge:** open that pull request on GitHub and click **Revert**, then **Create pull request** and **Merge**. The previous version is back within a few minutes.
 - **The same bug survives 3 fixes:** ask Claude to explain the cause before it changes more code, or revert.
 - **Someone forgot their passcode:** first confirm it's really them (for example with a call). Then, as the admin, open **Admin**, find their username, tap **Reset passcode**, and send them the one-time passcode privately.
