@@ -153,6 +153,7 @@ Other families can sign up at the same address and make their own home; they nev
   - If the log says `tsc: not found` or `Cannot find module`, go to the Worker's **Settings → Build** and change the build command to `npm ci && npm run build`.
   - If it complains about the Node.js version, go to **Settings → Build → Variables**, add `NODE_VERSION` with the value `22`, then retry the build.
 - **No preview link on a pull request:** check Part 1, step 4. The first preview can take a few minutes. If the build log says the Wrangler configuration is missing a `previews` block, ask Claude to add one: it says which database preview links use.
+- **Sign up or log in shows "Error 1102: Worker exceeded resource limits":** scrambling a passcode safely takes more computing than Cloudflare's free plan allows for one request (10 milliseconds). Tell Claude, so it can lower the number of scrambling rounds a little. Switching to Workers Paid (US$5 a month) also fixes it.
 - **The live app broke after a merge:** open that pull request on GitHub and click **Revert**, then **Create pull request** and **Merge**. The previous version is back within a few minutes.
 - **The same bug survives 3 fixes:** ask Claude to explain the cause before it changes more code, or revert.
 - **Someone forgot their passcode:** first confirm it's really them (for example with a call). Then, as the admin, open **Admin**, find their username, tap **Reset passcode**, and send them the one-time passcode privately.
