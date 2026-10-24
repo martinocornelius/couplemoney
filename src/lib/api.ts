@@ -11,11 +11,17 @@ export class ApiError extends Error {
   }
 }
 
-let whenLoggedOut: (() => void) | null = null;
+export type AccessLost = "logged_out" | "no_home";
 
-/** AuthProvider sets this, so a "not logged in" answer from any route takes the app back to the landing page. */
-export function onLoggedOut(handler: (() => void) | null): void {
-  whenLoggedOut = handler;
+let whenAccessLost: ((reason: AccessLost) => void) | null = null;
+
+/**
+ * AuthProvider sets this, so that from any route a "not logged in" answer takes
+ * the app back to the landing page, and a "not in a home" answer (say, after
+ * being removed) to Create or join a home.
+ */
+export function onAccessLost(handler: ((reason: AccessLost) => void) | null): void {
+  whenAccessLost = handler;
 }
 
 export async function api<T>(path: string, options: { method?: "GET" | "POST"; body?: unknown } = {}): Promise<T> {
@@ -34,7 +40,8 @@ export async function api<T>(path: string, options: { method?: "GET" | "POST"; b
   if (response.status === 204) return undefined as T;
   const data = (await response.json().catch(() => null)) as { error?: string; code?: string } | null;
   if (!response.ok) {
-    if (response.status === 401 && data?.code === "not_logged_in") whenLoggedOut?.();
+    if (response.status === 401 && data?.code === "not_logged_in") whenAccessLost?.("logged_out");
+    if (response.status === 403 && data?.code === "no_home") whenAccessLost?.("no_home");
     throw new ApiError(response.status, data?.error ?? "Something went wrong. Please try again.", data?.code);
   }
   return data as T;

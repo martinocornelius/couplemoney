@@ -1,7 +1,8 @@
 import { useState, type FormEvent } from "react";
-import { Link, useNavigate } from "react-router";
+import { Link, useLocation, useNavigate } from "react-router";
 import { normalizeUsername } from "../../shared/accounts.ts";
 import { useAuth, type User } from "../auth/AuthContext.tsx";
+import { nextPage, withNext } from "../auth/next.ts";
 import { ErrorNote, SubmitButton, TextInput } from "../components/Form.tsx";
 import Screen from "../components/Screen.tsx";
 import { api, errorMessage } from "../lib/api.ts";
@@ -9,6 +10,7 @@ import { api, errorMessage } from "../lib/api.ts";
 export default function LogInScreen() {
   const { setUser } = useAuth();
   const navigate = useNavigate();
+  const next = nextPage(useLocation().search);
   const [username, setUsername] = useState("");
   const [passcode, setPasscode] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -25,8 +27,8 @@ export default function LogInScreen() {
     try {
       const { user } = await api<{ user: User }>("/api/login", { body: { username: normalizeUsername(username), passcode } });
       setUser(user);
-      // After an admin reset, the guards send the account to choose a new passcode.
-      navigate(user.mustChangePasscode ? "/passcode" : "/", { replace: true });
+      // After an admin reset, a new passcode comes first; then the invite, if one is waiting.
+      navigate(user.mustChangePasscode ? withNext("/passcode", next) : (next ?? "/"), { replace: true });
     } catch (failure) {
       setError(errorMessage(failure));
       setBusy(false);
@@ -34,7 +36,7 @@ export default function LogInScreen() {
   }
 
   return (
-    <Screen title="Log in" backTo="/welcome">
+    <Screen title="Log in" backTo={next ?? "/welcome"}>
       <form onSubmit={submit} noValidate className="flex flex-col gap-4">
         <TextInput
           label="Username"
@@ -58,7 +60,7 @@ export default function LogInScreen() {
       <p className="text-center text-sm text-slate-600">Forgot your passcode? Ask the app admin to reset it.</p>
       <p className="text-center text-sm text-slate-600">
         New here?{" "}
-        <Link to="/signup" className="font-semibold text-brand-700">
+        <Link to={withNext("/signup", next)} className="font-semibold text-brand-700">
           Sign up
         </Link>
       </p>

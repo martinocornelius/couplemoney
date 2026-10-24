@@ -4,7 +4,7 @@ import TrendChart, { type TrendSeries } from "../components/charts/TrendChart.ts
 import { OTHER_COLOR, SERIES_COLORS, sliceColor } from "../components/charts/colors.ts";
 import Screen from "../components/Screen.tsx";
 import Segmented from "../components/Segmented.tsx";
-import { categoryEmoji, type CategoryKind } from "../lib/categories.ts";
+import { categoryEmoji, type CategoryKind } from "../../shared/categories.ts";
 import { percentages, pieSlices, shouldShowPie } from "../lib/charts.ts";
 import { formatRupiah } from "../lib/rupiah.ts";
 import {

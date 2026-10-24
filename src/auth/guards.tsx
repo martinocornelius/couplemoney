@@ -1,17 +1,20 @@
 // Route guards: each screen only shows to the accounts it's meant for.
 
-import { Navigate, Outlet } from "react-router";
+import { Navigate, Outlet, useLocation } from "react-router";
 import { useAuth } from "./AuthContext.tsx";
+import { nextPage } from "./next.ts";
 
-function Loading() {
+/** Shown while the app is still asking the server who is logged in. */
+export function Loading() {
   return <div className="flex min-h-dvh items-center justify-center text-sm text-slate-500">Loading…</div>;
 }
 
-/** Landing, Sign up and Log in. A logged-in account goes straight into the app. */
+/** Landing, Sign up and Log in. A logged-in account goes straight into the app, or back to the invite it came from. */
 export function LoggedOutOnly() {
   const { user } = useAuth();
+  const { search } = useLocation();
   if (user === undefined) return <Loading />;
-  return user ? <Navigate to="/" replace /> : <Outlet />;
+  return user ? <Navigate to={nextPage(search) ?? "/"} replace /> : <Outlet />;
 }
 
 /** Everything else needs an account. Right after an admin reset, it chooses a new passcode first. */

@@ -1,3 +1,4 @@
+import { useUser } from "../auth/AuthContext.tsx";
 import BudgetBar from "../components/BudgetBar.tsx";
 import GoalProgress from "../components/GoalProgress.tsx";
 import Screen, { SecondaryLink } from "../components/Screen.tsx";
@@ -13,6 +14,7 @@ import {
 } from "../lib/sampleData.ts";
 
 export default function HomeScreen() {
+  const { home } = useUser();
   const pocketsTotal = samplePockets.reduce((sum, p) => sum + p.balance, 0);
   const netWorth = pocketsTotal + sampleOpenReceivables - sampleOpenPayables;
   const income = sumAmounts(sampleIncomeByCategory);
@@ -26,7 +28,7 @@ export default function HomeScreen() {
   return (
     <Screen
       number={6}
-      title="Home"
+      title={home?.name ?? "Home"}
       shows="Net worth; this month's income, expense and balance; our dreams (goal progress); payables and receivables due in the next 7 days; this month's budgets; and the shared transaction list, with transfers shown as “BCA → Cash”. Switch between Today and This month, filter by pocket, tap + to add."
     >
       <section className="rounded-xl bg-brand-700 p-4 text-white">

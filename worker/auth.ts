@@ -5,6 +5,7 @@
 // * A session is a random token in an HttpOnly cookie; the database keeps
 //   only the token's SHA-256 hash.
 
+import { CODE_ALPHABET } from "../shared/homes.ts";
 import type { Db } from "./db.ts";
 import { DAY, HOUR, wib, wibAfter } from "./time.ts";
 
@@ -17,8 +18,6 @@ export const SESSION_DAYS = 90;
 /** A session's expiry moves forward on a visit at most once an hour, to save database writes. */
 const SESSION_REFRESH = HOUR;
 
-/** Capital letters and digits without the look-alikes 0, 1, I and O: 32 characters. */
-export const CODE_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
 
 const encoder = new TextEncoder();
 

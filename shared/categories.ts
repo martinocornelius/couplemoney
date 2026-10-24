@@ -1,5 +1,6 @@
 // The default categories every new home starts with (SPEC.md, "Default
-// categories"). Members can add their own, rename them or hide them later.
+// categories"): the Worker adds them when a home is created, in this order.
+// Members can add their own, rename them or hide them later.
 
 export type CategoryKind = "expense" | "income";
 

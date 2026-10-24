@@ -2,18 +2,11 @@
 // handle() directly with a stand-in database and a chosen time.
 
 import { normalizeUsername, passcodeProblem, usernameProblem } from "../shared/accounts.ts";
-import {
-  burnPasscodeCheck,
-  clearSessionCookie,
-  findSession,
-  hashPasscode,
-  randomCode,
-  startSession,
-  verifyPasscode,
-  type SessionUser,
-} from "./auth.ts";
+import { answer, profile, refuse, requireUser, type Profile } from "./access.ts";
+import { burnPasscodeCheck, clearSessionCookie, hashPasscode, randomCode, startSession, verifyPasscode } from "./auth.ts";
 import type { Db } from "./db.ts";
 import { fail, json, readBody, text } from "./http.ts";
+import { createHome, findHomeByCode, getHome, joinHome, leaveHome, removeMember, resetHomeCode } from "./homes.ts";
 import { TABLES } from "./tables.ts";
 import { DAY, MINUTE, minutesUntil, wib, wibAfter } from "./time.ts";
 
@@ -75,6 +68,20 @@ export async function handle(request: Request, env: AppEnv, now = new Date()): P
         return await findAccount(request, db, now, url);
       case "POST /api/admin/reset":
         return await resetPasscode(request, db, now);
+      case "POST /api/homes":
+        return await createHome(request, db, now);
+      case "GET /api/join":
+        return await findHomeByCode(request, db, now, url);
+      case "POST /api/join":
+        return await joinHome(request, db, now);
+      case "GET /api/home":
+        return await getHome(request, db, now);
+      case "POST /api/home/code":
+        return await resetHomeCode(request, db, now);
+      case "POST /api/home/remove-member":
+        return await removeMember(request, db, now);
+      case "POST /api/home/leave":
+        return await leaveHome(request, db, now);
       default:
         return fail(404, "Not found.");
     }
@@ -107,53 +114,7 @@ async function health(db: Db | undefined): Promise<Response> {
   }
 }
 
-// --- Sessions and answers -------------------------------------------------------
-
-/**
- * The logged-in account, or the answer to send instead: not logged in, a new
- * passcode is needed first (after an admin reset), or admin only.
- */
-async function requireUser(
-  request: Request,
-  db: Db,
-  now: Date,
-  options: { allowMustChange?: boolean; adminOnly?: boolean } = {},
-): Promise<SessionUser | Response> {
-  const user = await findSession(db, request, now);
-  if (!user) return fail(401, "You're not logged in.", "not_logged_in", { "set-cookie": clearSessionCookie() });
-  if (user.mustChangePasscode && !options.allowMustChange) {
-    return fail(403, "Choose a new passcode first.", "passcode_change_required");
-  }
-  if (options.adminOnly && !user.isAdmin) return fail(403, "Only the app admin can do this.", "admin_only");
-  return user;
-}
-
-/** A JSON answer for a logged-in account, carrying the session cookie when it was just extended. */
-function answer(user: SessionUser, body: unknown, status = 200): Response {
-  return json(body, status, user.refreshedCookie ? { "set-cookie": user.refreshedCookie } : {});
-}
-
-type Profile = {
-  username: string;
-  isAdmin: boolean;
-  mustChangePasscode: boolean;
-  home: { id: string; name: string } | null;
-};
-
-/** What the app needs to know about the logged-in account. Never includes passcode data. */
-async function profile(
-  db: Db,
-  user: { userId: string; username: string; isAdmin: boolean; mustChangePasscode: boolean },
-): Promise<Profile> {
-  const home = await db
-    .prepare(
-      `SELECT h.id, h.name FROM members m JOIN homes h ON h.id = m.home_id
-       WHERE m.user_id = ? AND m.removed_at IS NULL`,
-    )
-    .bind(user.userId)
-    .first<{ id: string; name: string }>();
-  return { username: user.username, isAdmin: user.isAdmin, mustChangePasscode: user.mustChangePasscode, home: home ?? null };
-}
+// --- Wrong passcodes -------------------------------------------------------------
 
 function locked(now: Date, lockedUntil: string): Response {
   const minutes = minutesUntil(now, lockedUntil);
@@ -325,7 +286,7 @@ async function findAccount(request: Request, db: Db, now: Date, url: URL): Promi
   const admin = await requireUser(request, db, now, { adminOnly: true });
   if (admin instanceof Response) return admin;
   const row = await findAccountRow(db, url.searchParams.get("username") ?? "");
-  if (!row) return answer(admin, { error: "No account has that username." }, 404);
+  if (!row) return refuse(admin, 404, "No account has that username.");
   return answer(admin, { account: accountInfo(row, now) });
 }
 
@@ -339,9 +300,9 @@ async function resetPasscode(request: Request, db: Db, now: Date): Promise<Respo
   if (admin instanceof Response) return admin;
   const body = await readBody(request);
   const row = await findAccountRow(db, text(body.username));
-  if (!row) return answer(admin, { error: "No account has that username." }, 404);
+  if (!row) return refuse(admin, 404, "No account has that username.");
   if (row.id === admin.userId) {
-    return answer(admin, { error: "That's your own account. Use Change passcode instead." }, 400);
+    return refuse(admin, 400, "That's your own account. Use Change passcode instead.");
   }
 
   const oneTimePasscode = randomCode(ONE_TIME_PASSCODE_LENGTH);

@@ -325,7 +325,8 @@ Each person has their own account. Three things protect the app: the passcode pr
 | Add, rename, hide or show categories | Any member of the home |
 | Export transactions to Excel | Any member, only their own home's transactions |
 | Reset the home code | Any member; old links and codes stop working, members keep working |
-| Remove a member | Any member; that account loses access to the home immediately (it can still log in and create or join another home) |
+| Remove a member | Any member; that account loses access to the home immediately (it can still log in and create or join another home, or join this one again with the current home code) |
+| Leave a home | Any member, for themselves. When the last member leaves, the home code is replaced, so nobody can join an empty home; its data stays stored |
 | Change a passcode | Only the account's owner, after typing the current passcode (or right after logging in with a one-time passcode) |
 | Reset someone's passcode | Only the app admin; the admin never sees a passcode or any home's money |
 

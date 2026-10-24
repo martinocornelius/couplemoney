@@ -1,7 +1,8 @@
 import { useState, type FormEvent } from "react";
-import { Link, useNavigate } from "react-router";
+import { Link, useLocation, useNavigate } from "react-router";
 import { normalizeUsername, PASSCODE_MIN, passcodeProblem, USERNAME_RULE, usernameProblem } from "../../shared/accounts.ts";
 import { useAuth, type User } from "../auth/AuthContext.tsx";
+import { nextPage, withNext } from "../auth/next.ts";
 import { ErrorNote, SubmitButton, TextInput } from "../components/Form.tsx";
 import Screen from "../components/Screen.tsx";
 import { api, errorMessage } from "../lib/api.ts";
@@ -9,6 +10,7 @@ import { api, errorMessage } from "../lib/api.ts";
 export default function SignUpScreen() {
   const { setUser } = useAuth();
   const navigate = useNavigate();
+  const next = nextPage(useLocation().search);
   const [username, setUsername] = useState("");
   const [passcode, setPasscode] = useState("");
   const [repeat, setRepeat] = useState("");
@@ -29,7 +31,7 @@ export default function SignUpScreen() {
     try {
       const { user } = await api<{ user: User }>("/api/signup", { body: { username: name, passcode } });
       setUser(user);
-      navigate("/", { replace: true });
+      navigate(next ?? "/", { replace: true });
     } catch (failure) {
       setError(errorMessage(failure));
       setBusy(false);
@@ -37,7 +39,7 @@ export default function SignUpScreen() {
   }
 
   return (
-    <Screen title="Sign up" backTo="/welcome">
+    <Screen title="Sign up" backTo={next ?? "/welcome"}>
       <form onSubmit={submit} noValidate className="flex flex-col gap-4">
         <TextInput
           label="Username"
@@ -69,7 +71,7 @@ export default function SignUpScreen() {
       </form>
       <p className="text-center text-sm text-slate-600">
         Already have an account?{" "}
-        <Link to="/login" className="font-semibold text-brand-700">
+        <Link to={withNext("/login", next)} className="font-semibold text-brand-700">
           Log in
         </Link>
       </p>

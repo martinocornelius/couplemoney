@@ -2,7 +2,7 @@
 // update it after signing up, logging in, changing a passcode or logging out.
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
-import { api, ApiError, errorMessage, onLoggedOut } from "../lib/api.ts";
+import { api, ApiError, errorMessage, onAccessLost } from "../lib/api.ts";
 
 export type User = {
   username: string;
@@ -27,8 +27,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [attempt, setAttempt] = useState(0);
 
   useEffect(() => {
-    onLoggedOut(() => setUser(null));
-    return () => onLoggedOut(null);
+    onAccessLost((reason) => {
+      if (reason === "logged_out") setUser(null);
+      else setUser((current) => current && { ...current, home: null });
+    });
+    return () => onAccessLost(null);
   }, []);
 
   useEffect(() => {

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import Screen from "../components/Screen.tsx";
 import Segmented from "../components/Segmented.tsx";
-import { DEFAULT_CATEGORIES, type CategoryKind } from "../lib/categories.ts";
+import { DEFAULT_CATEGORIES, type CategoryKind } from "../../shared/categories.ts";
 
 export default function CategoriesScreen() {
   const [kind, setKind] = useState<CategoryKind>("expense");

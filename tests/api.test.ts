@@ -2,46 +2,9 @@
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { handle, type AppEnv } from "../worker/app.ts";
-import { CODE_ALPHABET } from "../worker/auth.ts";
-import { sqliteDb } from "./helpers/sqliteDb.ts";
-
-const APP = "https://couple-money.test";
-const START = new Date("2026-10-20T03:00:00Z"); // 10:00 WIB
-const minutes = (n: number) => new Date(START.getTime() + n * 60_000);
-
-type Options = { body?: unknown; cookie?: string; origin?: string | null; now?: Date };
-
-function call(env: AppEnv, method: string, path: string, options: Options = {}): Promise<Response> {
-  const headers = new Headers();
-  if (options.origin !== null) headers.set("origin", options.origin ?? APP);
-  if (options.cookie) headers.set("cookie", options.cookie);
-  if (options.body !== undefined) headers.set("content-type", "application/json");
-  const body = options.body === undefined ? undefined : JSON.stringify(options.body);
-  return handle(new Request(APP + path, { method, headers, body }), env, options.now ?? START);
-}
-
-/** The answer's JSON body. */
-async function body(response: Response): Promise<Record<string, any>> {
-  return (await response.json()) as Record<string, any>;
-}
-
-function sessionOf(response: Response): string {
-  const cookie = (response.headers.get("set-cookie") ?? "").split(";")[0];
-  assert.match(cookie, /^session=.+/, "a session cookie was set");
-  return cookie;
-}
-
-async function signUp(env: AppEnv, username: string, passcode = "secret123"): Promise<string> {
-  const response = await call(env, "POST", "/api/signup", { body: { username, passcode } });
-  assert.equal(response.status, 201, await response.clone().text());
-  return sessionOf(response);
-}
-
-function setup() {
-  const { db, sqlite } = sqliteDb();
-  return { env: { DB: db } as AppEnv, sqlite };
-}
+import { CODE_ALPHABET } from "../shared/homes.ts";
+import { handle } from "../worker/app.ts";
+import { APP, body, call, minutes, sessionOf, setup, signUp, START } from "./helpers/api.ts";
 
 test("sign up logs you in with a secure session cookie", async () => {
   const { env } = setup();
@@ -94,6 +57,13 @@ test("every route except sign up, log in and health needs a session", async () =
     ["POST", "/api/passcode"],
     ["GET", "/api/admin/account?username=martino"],
     ["POST", "/api/admin/reset"],
+    ["POST", "/api/homes"],
+    ["GET", "/api/join?code=ABCDEFGHJKLM"],
+    ["POST", "/api/join"],
+    ["GET", "/api/home"],
+    ["POST", "/api/home/code"],
+    ["POST", "/api/home/remove-member"],
+    ["POST", "/api/home/leave"],
   ]) {
     const response = await call(env, method, path, { body: method === "POST" ? {} : undefined });
     assert.equal(response.status, 401, `${method} ${path}`);

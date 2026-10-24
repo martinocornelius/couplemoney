@@ -1,7 +1,8 @@
 import { useState, type FormEvent } from "react";
-import { Link, useNavigate } from "react-router";
+import { Link, useLocation, useNavigate } from "react-router";
 import { PASSCODE_MIN, passcodeProblem } from "../../shared/accounts.ts";
 import { useAuth, useUser, type User } from "../auth/AuthContext.tsx";
+import { nextPage } from "../auth/next.ts";
 import { ErrorNote, SubmitButton, SuccessNote, TextInput } from "../components/Form.tsx";
 import Screen from "../components/Screen.tsx";
 import { api, errorMessage } from "../lib/api.ts";
@@ -14,6 +15,7 @@ export default function PasscodeScreen() {
   const user = useUser();
   const { setUser, logOut } = useAuth();
   const navigate = useNavigate();
+  const next = nextPage(useLocation().search);
   const afterReset = user.mustChangePasscode;
   const backTo = user.home ? "/settings" : "/setup";
 
@@ -42,7 +44,7 @@ export default function PasscodeScreen() {
       });
       setUser(updated);
       if (afterReset) {
-        navigate("/", { replace: true });
+        navigate(next ?? "/", { replace: true });
         return;
       }
       setCurrent("");

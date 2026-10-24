@@ -1,6 +1,6 @@
 import { useParams } from "react-router";
 import Screen from "../components/Screen.tsx";
-import { DEFAULT_CATEGORIES } from "../lib/categories.ts";
+import { DEFAULT_CATEGORIES } from "../../shared/categories.ts";
 
 const types = ["Expense", "Income", "Transfer"];
 

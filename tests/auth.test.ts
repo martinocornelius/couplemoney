@@ -1,6 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { CODE_ALPHABET, hashPasscode, PBKDF2_ITERATIONS, randomCode, verifyPasscode } from "../worker/auth.ts";
+import { CODE_ALPHABET } from "../shared/homes.ts";
+import { hashPasscode, PBKDF2_ITERATIONS, randomCode, verifyPasscode } from "../worker/auth.ts";
 
 test("a passcode hash is PBKDF2-SHA256 with its round count and its own salt", async () => {
   const first = await hashPasscode("secret123");
